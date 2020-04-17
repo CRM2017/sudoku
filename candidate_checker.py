@@ -1,5 +1,7 @@
 from candidate import Candidate
 Nd = 9
+
+
 class Board_Checker(Candidate):
 
     def __init__(self, values):
@@ -52,7 +54,7 @@ class Board_Checker(Candidate):
                 if self.values[row][col] != 0:
 
                     cnt1 = list(self.values[row]).count(self.values[row][col])
-                    cnt2 = list(self.values[:,col]).count(self.values[row][col])
+                    cnt2 = list(self.values[:, col]).count(self.values[row][col])
 
                     block_values = [y[self.make_index(col):self.make_index(col)+3] for y in
                                     self.values[self.make_index(row):self.make_index(row)+3]]

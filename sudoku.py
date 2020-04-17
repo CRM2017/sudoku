@@ -1,4 +1,4 @@
-
+import random
 import time
 import json
 import numpy as np
@@ -6,36 +6,43 @@ import genetic_solver as gss
 
 
 class Board():
-    def __init__(self, file):
-        self.easy, self.medium, self.hard, self.expert = [], [], [], []
-        self.load_db(file)
-        self.grid = np.array(list(self.easy[0])).reshape((9, 9)).astype(str)
-
-    def load_db(self, file):
-        with open(file) as f:
+    def __init__(self, level):
+        with open('sudoku_samples.json') as f:
             data = json.load(f)
         self.easy = data['Easy']
         self.medium = data['Medium']
         self.hard = data['Hard']
         self.expert = data['Expert']
+        if level == 'easy':
+            self.rawData = self.easy[1]
+        elif level == 'medium':
+            self.rawData = self.medium[0]
+        elif level == 'hard':
+            self.rawData = self.hard[random.randint(0, 9)]
+        elif level == 'expert':
+            self.rawData = self.expert[random.randint(0, 9)]
+        self.grid = np.array(list(self.rawData)).reshape((9, 9)).astype(str)
 
-    def solver(self):
+    def solve(self):
         s = gss.GA_Solver()
-        s.load(self.easy[0])
+        s.load(self.rawData)
         start_time = time.time()
         self.pretty_print(self.grid)
-        generation, solution = s.solve()
+        generation, solution, reseed = s.solve()
         if (solution):
             if generation == -1:
                 print("Invalid inputs")
             elif generation == -2:
                 print("No solution found")
             else:
-                time_elapsed = '{0:6.2f}'.format(time.time()-start_time)
+                time_elapsed = time.time()-start_time
                 str_print = "Solution found at generation: " + str(generation) + \
-                        "\n" + "Time elapsed: " + str(time_elapsed) + "s"
+                        "\n" + "Time elapsed: " + str('{0:6.2f}'.format(time_elapsed)) + "s"
+                print('============ Solution =============')
                 self.pretty_print(solution.values)
                 print(str_print)
+                return generation, time_elapsed, reseed
+
 
     def pretty_print(self, grid):
         for i in range(len(grid)):
@@ -49,5 +56,18 @@ class Board():
                 else:
                     print(' ' + str(grid[i][j]) + ' ', end="")
 
-s = Board("sudoku_samples.json")
-s.solver()
+
+total_generation = 0
+total_time = 0
+total_restart = 0
+# b = Board('medium')
+# b.solve()
+
+for i in range(10):
+    b = Board('medium')
+    generation, time_cost, restart = b.solve()
+    total_generation += generation
+    total_time += time_cost
+    total_restart += restart
+
+print(total_generation/10, total_time/10, total_restart)

@@ -35,7 +35,7 @@ class Population(object):
             for i in range(0, Nd):  # New row in candidate.
                 row = np.zeros(Nd)
 
-                # Fill in the givens.
+                # Fill up grids in givens candidates.
                 for j in range(0, Nd):  # New column j value in row i.
 
                     # If value is already given, don't change it.
@@ -45,12 +45,12 @@ class Population(object):
                     elif given.values[i][j] == 0:
                         row[j] = helper.values[i][j][random.randint(0, len(helper.values[i][j]) - 1)]
 
-                # If we don't have a valid board, then try again. max iteration 1000
+                # If we don't have a valid board, then try again. max iteration 50000
                 # There must be no duplicates in the row.
                 ii = 0
                 while len(list(set(row))) != Nd:
                     ii += 1
-                    if ii > 10000:
+                    if ii > 50000:
                         return 0
                     for j in range(0, Nd):
                         if given.values[i][j] == 0:
@@ -67,7 +67,6 @@ class Population(object):
     def update_fitness(self):
         """ Update fitness of every candidate/chromosome. """
         for candidate in self.candidates:
-
             candidate.update_fitness()
         return
 

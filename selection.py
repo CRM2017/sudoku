@@ -18,15 +18,15 @@ class Selection(object):
         f2 = c2.fitness
 
         # Find the fittest and the weakest.
-        if (f1 > f2):
+        if f1 > f2:
             fittest = c1
             weakest = c2
         else:
             fittest = c2
             weakest = c1
 
-        # selection_rate = 0.85
-        selection_rate = 0.80
+        selection_rate = 0.85
+        # selection_rate = 0.80
         r = random.uniform(0, 1.1)
         while (r > 1):  # Outside [0, 1] boundary. Choose another.
             r = random.uniform(0, 1.1)

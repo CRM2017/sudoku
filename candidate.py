@@ -29,14 +29,13 @@ class Candidate(object):
 
             # unique
             # column_sum += (1.0 / len(set(column_count))) / Nd
-            # set
-            # for k in range(len(column_count)):
-            #     if column_count[k] != 0:
-            #         column_sum += (1/Nd)/Nd
-            # duplicate
             for k in range(len(column_count)):
-                if column_count[k] == 1:
+                if column_count[k] != 0:
                     column_sum += (1/Nd)/Nd
+            # duplicate
+            # for k in range(len(column_count)):
+            #     if column_count[k] == 1:
+            #         column_sum += (1/Nd)/Nd
             column_count = np.zeros(Nd)
 
         # For each block...
@@ -56,14 +55,13 @@ class Candidate(object):
 
                 # unique
                 # block_sum += (1.0 / len(set(block_count))) / Nd
-                # set
-                # for k in range(len(block_count)):
-                #     if block_count[k] != 0:
-                #         block_sum += (1/Nd)/Nd
-                # duplicate
                 for k in range(len(block_count)):
-                    if block_count[k] == 1:
+                    if block_count[k] != 0:
                         block_sum += (1/Nd)/Nd
+                # duplicate
+                # for k in range(len(block_count)):
+                #     if block_count[k] == 1:
+                #         block_sum += (1/Nd)/Nd
                 block_count = np.zeros(Nd)
 
         # Calculate overall fitness.

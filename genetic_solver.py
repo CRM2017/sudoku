@@ -1,19 +1,19 @@
 import numpy as np
-import random
-import operator
 from candidate import Candidate
 from crossover import Crossover
-from board_checker import Board_Checker
+from candidate_checker import Board_Checker
 from population import Population
 from selection import Selection
 
 Nd = 9  # Number of digits (Sudoku puzzles is 9x9).
+
 
 class GA_Solver(object):
     """ Solves a given Sudoku puzzle using a genetic algorithm. """
 
     def __init__(self):
         self.given = None
+        self.population = None
         return
 
     def load(self, p):
@@ -23,43 +23,46 @@ class GA_Solver(object):
 
     def solve(self):
 
-        Nc = 1000  # Number of candidates (i.e. population size).
-        Ne = int(0.05 * Nc)  # Number of elites.
-        Ng = 10000  # Number of generations.
+        population_size = 300 # Number of candidates (i.e. population size).
+        Ne = int(0.05 * population_size)  # Number of elites.
+        max_generations = 10000  # Number of generations.
         Nm = 0  # Number of mutations.
 
         # Mutation parameters.
         phi = 0
         sigma = 1
-        mutation_rate = 0.06
+        mutation_rate = 0.05
 
-        # Check given one first
-        if self.given.no_duplicates() == False:
+        # Validate the given board
+        if not self.given.no_duplicates():
             return (-1, 1)
 
         # Create an initial population.
         self.population = Population()
-        print("Creating an initial population.")
-        if self.population.seed(Nc, self.given) == 1:
+        print("Creating an initial population with population size {}.".format(population_size))
+        if self.population.seed(population_size, self.given) == 1:
             pass
         else:
             return (-1, 1)
 
-        # For up to 10000 generations...
+        # For up to 1000 generations...
         stale = 0
-        for generation in range(0, Ng):
+        count_reseed = 0
+        for generation in range(0, max_generations):
 
             # Check for a solution.
             best_fitness = 0.0
             #best_fitness_population_values = self.population.candidates[0].values
-            for c in range(0, Nc):
+            for c in range(0, population_size):
                 fitness = self.population.candidates[c].fitness
                 if (fitness == 1):
-                    print("Solution found at generation %d!" % generation)
-                    return (generation, self.population.candidates[c])
+                    best_fitness = fitness
+                    print("Generation:", generation, " Best fitness:", best_fitness)
+                    # return generations, solution, and the number of reseed times
+                    return generation, self.population.candidates[c], count_reseed
 
                 # Find the best fitness and corresponding chromosome
-                if (fitness > best_fitness):
+                if fitness > best_fitness:
                     best_fitness = fitness
                     #best_fitness_population_values = self.population.candidates[c].values
 
@@ -78,7 +81,7 @@ class GA_Solver(object):
                 elites.append(elite)
 
             # Create the rest of the candidates.
-            for count in range(Ne, Nc, 2):
+            for count in range(Ne, population_size, 2):
                 # Select parents from population via a tournament.
                 s = Selection()
                 parent1 = s.select(self.population.candidates)
@@ -136,20 +139,21 @@ class GA_Solver(object):
 
             # Check for stale population.
             self.population.sort()
-            if (self.population.candidates[0].fitness != self.population.candidates[1].fitness):
+            if self.population.candidates[0].fitness != self.population.candidates[1].fitness:
                 stale = 0
             else:
                 stale += 1
 
-            # Re-seed the population if 100 generations have passed
-            # with the fittest two candidates always having the same fitness.
-            if (stale >= 100):
+            # Re-seed the population if 100 generations have passed with
+            # the fittest two candidates always having the same fitness.
+            if stale >= 100:
                 print("The population has gone stale. Re-seeding...")
-                self.population.seed(Nc, self.given)
+                count_reseed += 1
+                self.population.seed(population_size, self.given)
                 stale = 0
                 sigma = 1
                 phi = 0
-                mutation_rate = 0.06
+                mutation_rate = 0.05
 
         print("No solution found.")
-        return (-2, 1)
+        return -2, 1
